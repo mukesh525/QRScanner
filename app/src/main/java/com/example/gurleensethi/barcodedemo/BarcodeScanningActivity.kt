@@ -2,6 +2,7 @@ package com.example.gurleensethi.barcodedemo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Base64
 import android.widget.Toast
 import com.google.gson.Gson
 import me.dm7.barcodescanner.zbar.Result
@@ -11,6 +12,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.nio.charset.StandardCharsets
 
 class BarcodeScanningActivity : AppCompatActivity(), ZBarScannerView.ResultHandler {
     /*
@@ -52,7 +54,10 @@ class BarcodeScanningActivity : AppCompatActivity(), ZBarScannerView.ResultHandl
     * visit the GitHub README(https://github.com/dm77/barcodescanner)
     * */
     override fun handleResult(result: Result?) {
-        val article: ScanData? = Gson().fromJson(result?.contents, ScanData::class.java)
+        val ecoded = Base64.decode(result!!.contents, Base64.DEFAULT)
+        val decoded = String(ecoded, StandardCharsets.UTF_8)
+       // Toast.makeText(this, decoded, Toast.LENGTH_SHORT).show()
+        val article: ScanData? = Gson().fromJson(decoded, ScanData::class.java)
         article ?: ScanData(result!!.contents, "NA", "NA", "NA", "na")
         article.let {
             val call = client?.performAction(it!!.getUrl())
